@@ -1,0 +1,156 @@
+﻿@model IEnumerable<Inventario.Frontend.Models.Socio>
+@{
+    ViewData["Title"] = "Index";
+}
+
+@section Estilos {
+    <link href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" rel="stylesheet" />
+    <link href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.dataTables.min.css" rel="stylesheet" />
+}
+
+<a href="#" class="btn btn-primary mb-2" data-bs-toggle="modal" data-bs-target="#socioModal" onclick="abrirFormulario()">Nuevo Socio</a>
+
+<div class="row">
+    <!-- Panel Izquierdo: Detalle del socio -->
+    <div class="col-md-5">
+        <h5>Detalle del Socio</h5>
+        <div class="mb-2">
+            <label>Apellido</label>
+            <input id="detalleApellido" class="form-control" readonly />
+        </div>
+        <div class="mb-2">
+            <label>Nombre</label>
+            <input id="detalleNombre" class="form-control" readonly />
+        </div>
+        <div class="mb-2">
+            <label>Teléfono</label>
+            <input id="detalleTelefono" class="form-control" readonly />
+        </div>
+        <div class="mb-2">
+            <label>Email</label>
+            <input id="detalleEmail" class="form-control" readonly />
+        </div>
+        <div class="mb-2">
+            <label>Categoría</label>
+            <input id="detalleCategoria" class="form-control" readonly />
+        </div>
+        <div class="mb-2">
+            <label>Familiar</label>
+            <input id="detalleFamiliar" class="form-control" readonly />
+        </div>
+    </div>
+
+    <!-- Panel Derecho: Tabla de socios -->
+    <div class="col-md-7">
+        <h5>Lista de Socios</h5>
+        <table id="tablaSocios" class="display table table-bordered table-hover" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Apellido y Nombre</th>
+                    <th>DNI</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    var socioJson = Json.Serialize(item).ToString().Replace("'", "\\'");
+                    <tr data-json='@Html.Raw(socioJson)' style="cursor:pointer;">
+                        <td>@item.Apellido @item.Nombre</td>
+                        <td>@item.DNI</td>
+                        <td>
+                            <button class="btn btn-warning btn-sm" onclick="event.stopPropagation(); editarSocio(@item.Id)">Editar</button>
+                            <form asp-action="Delete" asp-route-id="@item.Id" method="post" class="d-inline" onsubmit="event.stopPropagation();">
+                                <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+<!-- Modal -->
+<div class="modal fade" id="socioModal" tabindex="-1" aria-labelledby="socioModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="socioModalLabel">Socio</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <div id="formularioSocioContainer"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (ViewData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @ViewData["ErrorMessage"]
+    </div>
+}
+
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            var tabla = $('#tablaSocios').DataTable({
+                paging: false,
+                searching: false,
+                info: false,
+                scrollY: '400px',   // altura visible, ajustala si querés
+                scrollCollapse: true,
+                language: {
+                    url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
+                }
+            });
+
+            $('#tablaSocios tbody').on('click', 'tr', function () {
+                var data = tabla.row(this).data();
+                if (!data) return;
+
+                mostrarDetalle($(this).data("json")); // usamos data-json en cada <tr>
+            });
+        });
+
+        function abrirFormulario() {
+            fetch('@Url.Action("Create", "Socios")')
+                .then(res => res.text())
+                .then(html => {
+                    document.getElementById("formularioSocioContainer").innerHTML = html;
+                });
+        }
+
+        function editarSocio(id) {
+            fetch('@Url.Action("Create", "Socios")?id=' + id)
+                .then(res => res.text())
+                .then(html => {
+                    document.getElementById("formularioSocioContainer").innerHTML = html;
+                    new bootstrap.Modal(document.getElementById('socioModal')).show();
+                });
+        }
+
+        function mostrarDetalle(socio) {
+            if (!socio) return;
+            document.getElementById("detalleApellido").value = socio.apellido;
+            document.getElementById("detalleNombre").value = socio.nombre;
+            document.getElementById("detalleTelefono").value = socio.telefono;
+            document.getElementById("detalleEmail").value = socio.email;
+            document.getElementById("detalleCategoria").value = socio.categoria;
+            document.getElementById("detalleFamiliar").value = socio.familiar;
+        }
+    </script>
+}
+

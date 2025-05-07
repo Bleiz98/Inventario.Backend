@@ -1,0 +1,81 @@
+﻿@model Inventario.Frontend.Models.Socio
+
+@{
+    ViewData["Title"] = "Create";
+    Layout = null;
+}
+
+<form asp-action="Create" method="post">
+    <input type="hidden" asp-for="Id" />
+    <div class="row g-2">
+        <div class="col-md-6">
+            <label>Apellido</label>
+            <input asp-for="Apellido" class="form-control" />
+            <span asp-validation-for="Apellido" class="text-danger"></span>
+        </div>
+        <div class="col-md-6">
+            <label>Nombre</label>
+            <input asp-for="Nombre" class="form-control" />
+            <span asp-validation-for="Nombre" class="text-danger"></span>
+        </div>
+        <div class="col-md-6">
+            <label>DNI</label>
+            <input asp-for="DNI" class="form-control" />
+            <span asp-validation-for="DNI" class="text-danger"></span>
+        </div>
+        <div class="col-md-6">
+            <label>Teléfono</label>
+            <input asp-for="Telefono" class="form-control" />
+            <span asp-validation-for="Telefono" class="text-danger"></span>
+        </div>
+        <div class="col-md-6">
+            <label>Email</label>
+            <input asp-for="Email" class="form-control" />
+            <span asp-validation-for="Email" class="text-danger"></span>
+        </div>
+        <div class="col-md-6">
+            <label>Categoría</label>
+            <input asp-for="Categoria" class="form-control" />
+            <span asp-validation-for="Categoria" class="text-danger"></span>
+        </div>
+        <div class="col-md-6">
+            <label>Familiar</label>
+            <input asp-for="Familiar" class="form-control" />
+            <span asp-validation-for="Familiar" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="mt-3">
+        <button type="submit" class="btn btn-primary">Guardar</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+    </div>
+</form>
+
+<form id="formCrearSocio" asp-action="Create" method="post">
+    ...
+</form>
+
+<script>
+    $(function () {
+        $("#formCrearSocio").submit(function (e) {
+            e.preventDefault();
+
+            const form = $(this);
+            $.ajax({
+                type: "POST",
+                url: form.attr("action"),
+                data: form.serialize(),
+                success: function (result) {
+                    // Si viene con errores, se reemplaza el contenido del modal
+                    $("#modalContent").html(result);
+                },
+                error: function (xhr) {
+                    console.log("Error al guardar socio", xhr);
+                }
+            });
+        });
+    });
+</script>
+
+
+
