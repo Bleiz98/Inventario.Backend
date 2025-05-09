@@ -6,4 +6,6 @@ Add-Migration CrearTablasIniciales
 Update-Database
 
 si va todo bien se te crearian las tablas, sino las clases pricipales para toma como tabla son, Operacion, Persona, Producto, Socio
+
+El proyecto esta en microsft visual studio 2022, en .Net8
  
